@@ -1,4 +1,3 @@
-from enum import Enum
 from feline.users.models import User
 from django.db.models.fields.related import ForeignKey
 from django_countries.fields import CountryField
@@ -7,11 +6,14 @@ from django_extensions.db.fields import AutoSlugField
 from django_extensions.db.models import TitleSlugDescriptionModel, TimeStampedModel
 from taggit.managers import TaggableManager
 
+from simple_history.models import HistoricalRecords
+
 
 class Category(TimeStampedModel, models.Model):
     name = models.CharField('nombre', max_length=255)
     description = models.TextField('descripción', blank=True, null=True)
     slug = AutoSlugField('slug', populate_from='name')
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.name
@@ -33,6 +35,7 @@ class Company(TimeStampedModel, models.Model):
     lindkedin_url = models.URLField(blank=True)
     country = CountryField()
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.name
@@ -74,7 +77,7 @@ class JobPost(TitleSlugDescriptionModel, TimeStampedModel, models.Model):
     status = models.CharField(
       max_length=20,
       choices=Status.choices,
-      default=Status.NEW  
+      default=Status.NEW
     )
     job_type = models.CharField(
       max_length=20,
@@ -83,15 +86,16 @@ class JobPost(TitleSlugDescriptionModel, TimeStampedModel, models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     tags = TaggableManager()
 
-    currency =  models.CharField(
+    currency = models.CharField(
       max_length=20,
       choices=Currency.choices
     )
 
-    salary_range_start_at =  models.IntegerField(blank=True, null=True)
+    salary_range_start_at = models.IntegerField(blank=True, null=True)
     salary_range_end_at = models.IntegerField(blank=True, null=True)
 
     sponsor_relocation = models.BooleanField(default=False)
+    history = HistoricalRecords()
 
     def __str__(self) -> str:
         return self.title
